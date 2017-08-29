@@ -36,19 +36,23 @@ params = {"uid": "{uid}",
 
 def fetch_data(uid=None, container_id=None):
     """
-    抓取数据，并保存到CSV文件中
+    抓取数据，并保存到txt文件中
     :return:
     """
     page = 0
-    total = 1300
+    total = 20000
     blogs = []
     for i in range(0, total // 10):
         params['uid'] = uid
         params['page'] = str(page)
         params['containerid'] = container_id
+        filename = '%s.txt' % uid
         res = requests.get(url, params=params, headers=headers)
         cards = res.json().get("cards")
         #print("res=%s" % res.json())
+        if len(cards) == 0:
+            break
+
         for card in cards:
             # 每条微博的正文内容
             if card.get("card_type") == 9:
@@ -57,7 +61,7 @@ def fetch_data(uid=None, container_id=None):
                 blogs.append(text)
         page += 1
         print("抓取第{page}页，目前总共抓取了 {count} 条微博".format(page=page, count=len(blogs)))
-        with codecs.open('weibo1.txt', 'w', encoding='utf-8') as f:
+        with codecs.open(filename, 'w', encoding='utf-8') as f:
             f.write("\n".join(blogs))
 
 
@@ -67,7 +71,7 @@ def grey_color_func(word, font_size, position, orientation, random_state=None,
     return s
 
 
-def generate_image():
+def generate_image(filename):
     data = []
     jieba.analyse.set_stop_words("./stopwords.txt")
 
@@ -75,18 +79,26 @@ def generate_image():
         for text in f.readlines():
             data.extend(jieba.analyse.extract_tags(text, topK=20))
         data = " ".join(data)
-        mask_img = imread('./52f90c9a5131c.jpg', flatten=True)
-        wordcloud = WordCloud(
-            font_path='msyh.ttc',
-            background_color='white',
-            mask=mask_img
-        ).generate(data)
-        plt.imshow(wordcloud.recolor(color_func=grey_color_func, random_state=3),
+        try:
+            mask_img = imread('./52f90c9a5131c.jpg', flatten=True)
+            wordcloud = WordCloud(
+                font_path='msyh.ttc',
+                background_color='white',
+                mask=mask_img
+            ).generate(data)
+            plt.imshow(wordcloud.recolor(color_func=grey_color_func, random_state=3),
                    interpolation="bilinear")
-        plt.axis('off')
-        plt.savefig('./heart2.jpg', dpi=1600)
+            plt.axis('off')
+            plt.savefig('./heart2.jpg', dpi=1600)
+        except Exception as e:
+            print('error: %s' % e)
+        #now build a word func for count or other model
+        
+
 
 
 if __name__ == '__main__':
-    fetch_data("5122481165", "1076035122481165")
-    generate_image()
+    #the uid and container id must update and save to RDB
+    uid = "5122481165"
+    fetch_data(uid, "1076035122481165")
+    generate_image("%s.txt" % uid)
