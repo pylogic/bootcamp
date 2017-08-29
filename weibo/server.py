@@ -60,6 +60,7 @@ def weibologin():
         if res.get("access_token"):
             session['access_token'] = res.get('access_token')
             session['uid'] = res.get('uid')
+            return redirect(url_for('index'))
         else:
             return 'code error'
     else:
@@ -71,3 +72,6 @@ def weibologin():
 
 # set the secret key.  keep this really secret:
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
+
+if __name__ == '__main__':
+    app.run(host = '0.0.0.0', port = 8080)
