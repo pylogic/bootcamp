@@ -54,7 +54,7 @@ def postweibo():
 
     if session['access_token']:
         client = WeiboClient(session['access_token'])
-        result = client.post("statuses/share.json", data={"status": "这是一条网页应用测试微博"})
+        result = client.post("statuses/update.json", data={"status": "this is a test weibo post"})
         return result
     else:
         return redirect(url_for('index'))
