@@ -16,6 +16,8 @@ from flask import make_response
 from weibopy import WeiboOauth2
 from weibopy import WeiboClient
 
+import datetime
+
 APP_KEY = ''
 APP_SECRET = ''
 CALLBACK_URL = 'https://aishe.org.cn/weibologin'
@@ -50,11 +52,16 @@ def login():
 
 @app.route('/postweibo', methods=['GET', 'POST'])
 def postweibo():
-    # send a test weibo
+    # send a test weibo. the posted text will truncated and add a tail
+    tail = 'https://aishe.org.cn' # must has this end
+    time = '%s I am a very very good boy. ' % datetime.datetime.now()
+    status = request.args.get('t', time)
+    sentpost = '%s %s' % (status, tail)
 
     if session['access_token']:
         client = WeiboClient(session['access_token'])
-        result = client.post("statuses/update.json", data={"status": "this is a test weibo post"})
+        result = client.post("statuses/share.json", data={"status":sentpost, "access_token":session['access_token']})
+        # result = client.session.post('https://api.weibo.com/2/statuses/update.json', data={"status":"test article test article"})
         return result
     else:
         return redirect(url_for('index'))
