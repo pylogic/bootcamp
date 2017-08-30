@@ -10,6 +10,7 @@ from flask import redirect
 from flask import url_for
 from flask import escape
 from flask import request
+from flask import render_template
 from flask import make_response
 
 # from weibo import APIClient #for p2
@@ -35,6 +36,8 @@ def index():
     if 'uid' in session and session['access_token']:
         client = WeiboClient(session['access_token'])
         result = client.get(suffix="statuses/public_timeline.json")
+        #TODO parse text object
+
         return 'Logged in as %s \n %s' % (escape(session['uid']), result)
     return redirect(CAclient.authorize_url) 
 
@@ -91,8 +94,19 @@ def weibologin():
         return 'code missing'
 
 
-
-
+@app.route('/rate')
+def rate():
+    #this parse and visulize the weibo object
+    # login protect
+    if not session['access_token']:
+        return redirect(url_for('index'))
+    # construct client, fetch home_timeline
+    client = WeiboClient(session['access_token'])
+    result = client.get('statuses/home_timeline.json')
+    # construct uid if needed
+    uid = session['uid']
+    # need a template for complext view
+    return render_template('rate.html', cards = result.statuses, uid = uid)
 
 # set the secret key.  keep this really secret:
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
