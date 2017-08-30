@@ -41,19 +41,21 @@ def index():
         #TODO parse text object
 
         return 'Logged in as %s \n %s' % (escape(session['uid']), result)
-    return redirect(CAclient.authorize_url) 
+    # return redirect(CAclient.authorize_url)
+    return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         session['uid'] = request.form['uid']
-        return redirect(INDEXURL)
-    return '''
-        <form method="post">
-            <p><input type=text name=uid>
-            <p><input type=submit value=Login>
-        </form>
-    '''
+        return redirect(url_for('login'))
+    return redirect(CAclient.authorize_url)
+    # return '''
+    #     <form method="post">
+    #         <p><input type=text name=uid>
+    #         <p><input type=submit value=Login>
+    #     </form>
+    # '''
 
 @app.route('/postweibo', methods=['GET', 'POST'])
 def postweibo():
