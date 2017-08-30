@@ -31,6 +31,8 @@ app = Flask(__name__)
 
 #logger making:
 
+
+
 @app.route('/')
 def index():
     if 'uid' in session and session['access_token']:
@@ -87,7 +89,8 @@ def weibologin():
         if res.get("access_token"):
             session['access_token'] = res.get('access_token')
             session['uid'] = res.get('uid')
-            return redirect(INDEXURL)
+            app.logger.debug('token fetched %s' % res.get('access_token'))
+            return redirect(url_for('rate'))
         else:
             return 'code error'
     else:
@@ -105,8 +108,10 @@ def rate():
     result = client.get('statuses/home_timeline.json')
     # construct uid if needed
     uid = session['uid']
+    # use preconfigured default app logger
+    app.logger.debug('cards fetched %s' % len(result['statuses']))
     # need a template for complext view
-    return render_template('rate.html', cards = result.statuses, uid = uid)
+    return render_template('rate.html', cards = result.get('statuses'), uid = uid)
 
 # set the secret key.  keep this really secret:
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
