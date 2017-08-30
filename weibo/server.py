@@ -14,6 +14,7 @@ from flask import make_response
 
 # from weibo import APIClient #for p2
 from weibopy import WeiboOauth2
+from weibopy import WeiboClient
 
 APP_KEY = ''
 APP_SECRET = ''
@@ -21,6 +22,7 @@ CALLBACK_URL = 'https://aishe.org.cn/weibologin'
 # CClient = APIClient(app_key=APP_KEY, app_secret=APP_SECRET, redirect_uri=CALLBACK_URL)
 CAclient = WeiboOauth2(APP_KEY, APP_SECRET, CALLBACK_URL)
 
+INDEXURL = 'https://aishe.org.cn/'
 
 app = Flask(__name__)
 
@@ -28,15 +30,17 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    if 'uid' in session:
-        return 'Logged in as %s' % escape(session['uid'])
+    if 'uid' in session and session['access_token']:
+        client = WeiboClient(session['access_token'])
+        result = client.get(suffix="statuses/public_timeline.json")
+        return 'Logged in as %s \n %s' % (escape(session['uid']), result)
     return redirect(CAclient.authorize_url) 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         session['uid'] = request.form['uid']
-        return redirect(url_for('index'))
+        return redirect(INDEXURL)
     return '''
         <form method="post">
             <p><input type=text name=uid>
@@ -44,10 +48,23 @@ def login():
         </form>
     '''
 
+@app.route('/postweibo', methods=['GET', 'POST'])
+def postweibo():
+    # send a test weibo
+
+    if session['access_token']:
+        client = WeiboClient(session['access_token'])
+        result = client.post("statuses/share.json", data={"status": "这是一条网页应用测试微博"})
+        return result
+    else:
+        return redirect(url_for('index'))
+
+
 @app.route('/logout')
 def logout():
     # remove the username from the session if it's there
     session.pop('uid', None)
+    session.pop('access_token', None)
     return redirect(url_for('index'))
 
 
@@ -60,7 +77,7 @@ def weibologin():
         if res.get("access_token"):
             session['access_token'] = res.get('access_token')
             session['uid'] = res.get('uid')
-            return redirect(url_for('index'))
+            return redirect(INDEXURL)
         else:
             return 'code error'
     else:
