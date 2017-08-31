@@ -37,7 +37,7 @@ app = Flask(__name__)
 def index():
     if 'uid' in session and session['access_token']:
         client = WeiboClient(session['access_token'])
-        result = client.get(suffix="statuses/public_timeline.json")
+        result = client.get(suffix="statuses/public_timeline.json", param={"count":100})
         #TODO parse text object
 
         return 'Logged in as %s \n %s' % (escape(session['uid']), result)
@@ -107,7 +107,7 @@ def rate():
         return redirect(url_for('index'))
     # construct client, fetch home_timeline
     client = WeiboClient(session['access_token'])
-    result = client.get('statuses/home_timeline.json')
+    result = client.get('statuses/home_timeline.json', param={"count":100})
     # construct uid if needed
     uid = session['uid']
     # use preconfigured default app logger
