@@ -17,6 +17,9 @@ from flask import make_response
 from weibopy import WeiboOauth2
 from weibopy import WeiboClient
 
+import textprocess.textclean as tc
+import textprocess.visualize as tv
+
 import datetime
 
 APP_KEY = ''
@@ -37,10 +40,18 @@ app = Flask(__name__)
 def index():
     if 'uid' in session and session['access_token']:
         client = WeiboClient(session['access_token'])
-        result = client.get(suffix="statuses/public_timeline.json", param={"count":100})
+        result = client.get(suffix="statuses/public_timeline.json", params={"count":100})
         #TODO parse text object
+        user = {'uid':session['uid'],
+                'access_token':session['access_token']}
 
-        return 'Logged in as %s \n %s' % (escape(session['uid']), result)
+        if len(result.get('statuses')):
+            data = tv.statuses_to_data(result.get('statuses'))
+
+
+
+        #return 'Logged in as %s \n %s' % (escape(session['uid']), result)
+        return render_template('index.html', data=data, user=user)
     # return redirect(CAclient.authorize_url)
     return render_template('index.html')
 
@@ -107,13 +118,15 @@ def rate():
         return redirect(url_for('index'))
     # construct client, fetch home_timeline
     client = WeiboClient(session['access_token'])
-    result = client.get('statuses/home_timeline.json', param={"count":100})
+    result = client.get('statuses/home_timeline.json', params={"count":100})
     # construct uid if needed
     uid = session['uid']
     # use preconfigured default app logger
     app.logger.debug('cards fetched %s' % len(result['statuses']))
     # need a template for complext view
     return render_template('rate.html', cards = result.get('statuses'), uid = uid)
+
+#post a secret weibo message with encryption
 
 # set the secret key.  keep this really secret:
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'

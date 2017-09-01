@@ -2,9 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>暗号的微博</title>
+    <title>公共微博</title>
 </head>
 <body>
+ {% if data %}
+ <h2>{{data.filtered}} / {{data.total}} mblogs is filtered! </h2>
+ <a href="/rate">Rate your own timeline</a>
+ <ul id="cards">
+    {% for item in cards %}
+        <li><a href="/user/{{ item.user.id }}">{{ item.user.name }}</a>
+            <p>{{ item.text }}</p>
+        </li>
+    {% endfor %}
+    </ul>
 
+ {% else %}
+  <h1>Please Login First</h1>
+ <a href="/login">Weibo Login</a>
+ {% endif %}
 </body>
 </html>
