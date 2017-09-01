@@ -98,13 +98,13 @@ def text_get_pos(cleantext):
     :return: structured text dict
     """
     seg_list = jieba.cut(cleantext.cleantext)
-    res = {'text': cleantext.cleantext,
-           'seg_list': seg_list,
-           'links': cleantext.links,
-           'htags': cleantext.htags,
-           'unames': cleantext.unames
-           }
-    return res
+    # res = {'text': cleantext.cleantext,
+    #        'seg_list': seg_list,
+    #        'links': cleantext.links,
+    #        'htags': cleantext.htags,
+    #        'unames': cleantext.unames
+    #        }
+    return seg_list
 
 
 

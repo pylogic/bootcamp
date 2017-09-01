@@ -4,23 +4,19 @@
 # name: Aishe Semantic Lab
 # record and send weibo through a robot api
 
-from flask import Flask
-from flask import session
-from flask import redirect
-from flask import url_for
-from flask import escape
-from flask import request
-from flask import render_template
-from flask import make_response
+import datetime
 
+from flask import Flask
+from flask import redirect
+from flask import render_template
+from flask import request
+from flask import session
+from flask import url_for
+from weibopy import WeiboClient
 # from weibo import APIClient #for p2
 from weibopy import WeiboOauth2
-from weibopy import WeiboClient
 
-import textprocess.textclean as tc
-import textprocess.visualize as tv
-
-import datetime
+import viewscontroller.visualize as tv
 
 APP_KEY = ''
 APP_SECRET = ''
