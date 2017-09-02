@@ -9,13 +9,24 @@
  <h2>{{data.filtered}} / {{data.total}} mblogs is filtered! </h2>
  <a href="/rate">Rate your own timeline</a>
  <ul id="cards">
-    {% for item in cards %}
-        <li><a href="/user/{{ item.user.id }}">{{ item.user.name }}</a>
+    {% for item in data.cards %}
+        <li><a href="/user/{{ item.user.uid }}">{{ item.user.name }}</a>
             <p>{{ item.text }}</p>
+            <a>
+                {% for pos in item.posseg %} {{pos}}{% endfor %}
+            </a>
+            {% for link in item.links %} <a href="{{link}}">{{link}}</a> {% endfor %}
+            {% for uname in item.unames %} <a href="/user/{{uname}}">{{uname}}</a> {% endfor %}
+            {% for htag in item.htags %} <a>{{htag}}</a> {% endfor %}
+            {% if item.sub_card  %}
+            <p>
+                {{ item.sub_card.text }}
+            </p>
+            <a> {{ item.sub_card.user.name }} </a>
+            {% endif %}
         </li>
     {% endfor %}
     </ul>
-
  {% else %}
   <h1>Please Login First</h1>
  <a href="/login">Weibo Login</a>

@@ -8,7 +8,9 @@ from cachetools import LRUCache
 from textprocess.wordmodel import Commonchar
 from textprocess.wordmodel import Commonword
 import logging
+import asyncio
 
+event_loop = asyncio.get_event_loop()
 
 start,end = (0x4E00, 0x9FA5)
 # with codecs.open("chinese.txt", "wb", encoding="utf-8") as f:
@@ -22,7 +24,7 @@ cache = LRUCache(maxsize=300)
 
 # statistic the incomming character
 
-def update(text):
+async def update(text):
     """
     :param text: char frequency for text
     :return: no return
@@ -39,8 +41,10 @@ def update(text):
 
         else:
             continue
-    increment_chars(common)
-
+    try:
+        event_loop.run_until_complete(increment_chars(common))
+    finally:
+        event_loop.close()
 # input chinese unicode, return cypher code;
 def trans_code(scch):
     """
@@ -59,7 +63,7 @@ def reverse_code(cycode):
     """
     return '喊'
 
-def increment_chars(commons):
+async def increment_chars(commons):
     """
     increment each chars in list
     :param commons:

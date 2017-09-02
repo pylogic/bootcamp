@@ -5,9 +5,11 @@
 # solved problems: 1. if chinese char or non chinese char
 # 2. if simplified chinese or traditional chinese and replace
 import textprocess.textclean as tc
+import asyncio
+import textprocess.scchtrans as ts
 
 import logging
-
+event_loop = asyncio.get_event_loop()
 
 # used by front
 def statuses_to_data(statuses):
@@ -18,6 +20,7 @@ def statuses_to_data(statuses):
     """
     data = {}
     data['total'] = len(statuses)
+    data['filtered'] = 0
     cards = []
     for item in statuses:
         card = clean_tweet(item)
@@ -25,6 +28,7 @@ def statuses_to_data(statuses):
             sub_card = clean_tweet(item.get('retweeted_status'))
             card['sub_card'] = sub_card
         cards.append(card)
+    data['cards'] = cards
     return data
 
 # for single tweet
@@ -51,12 +55,27 @@ def clean_tweet(tweet):
     card['idstr'] = tweet.get('idstr')
     card['mid'] = tweet.get('mid')
     card['created_at'] = tweet.get('created_at')
-    card['htags'] = tc.text_get_hashtag(tweet.get('text')).htags
-    card['unames'] = tc.text_get_username(tweet.get('text')).unames
-    card['links'] = tc.text_get_link(tweet.get('text')).links
-    card['text'] = tc.text_clean(tweet.get('text'),
+    try:
+        card['htags'] = tc.text_get_hashtag(tweet.get('text')).htags
+        card['unames'] = tc.text_get_username(tweet.get('text')).unames
+        card['links'] = tc.text_get_link(tweet.get('text')).links
+    except Exception as e:
+        # must logged
+        pass
+
+    try:
+        card['text'] = tc.text_clean(tweet.get('text'),
                                  card['links'],
                                  card['htags'],
                                  card['unames']).cleantext
+    except:
+        # must logged
+        card['text'] = tweet.get['text']
+
     card['posseg'] = tc.text_get_pos(card['text'])
+    #add async call to char and word count
+    try:
+        event_loop.run_until_complete(ts.update(card['text']))
+    finally:
+        event_loop.close()
     return card

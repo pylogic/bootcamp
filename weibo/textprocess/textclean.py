@@ -83,9 +83,9 @@ def text_clean(text, tlinks, thtags, tnames):
     cleantext = repl_uname_re.sub('他', cleantext) # TODO find a better rplc for name
     ctext = namedtuple('Ctxt', ['cleantext', 'links', 'htags', 'unames'], verbose=True)
     ctext.cleantext = cleantext
-    ctext.links = tlinks.links
-    ctext.htags = thtags.htags
-    ctext.unames = tnames.unames
+    ctext.links = tlinks
+    ctext.htags = thtags
+    ctext.unames = tnames
 
     return ctext
 
