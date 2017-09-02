@@ -7,7 +7,7 @@ import jieba.posseg as pseg
 import jieba.analyse
 import re
 from collections import namedtuple
-
+import logging
 
 # re patterns for @ ## link etc.
 uname_re = re.compile('\@(.+?)\s')

@@ -4,7 +4,11 @@
 # chinese cypher in chinese range in unicode;
 
 import codecs
-from textprocess.scchtrans import *
+from cachetools import LRUCache
+from textprocess.wordmodel import Commonchar
+from textprocess.wordmodel import Commonword
+import logging
+
 
 start,end = (0x4E00, 0x9FA5)
 # with codecs.open("chinese.txt", "wb", encoding="utf-8") as f:
@@ -12,29 +16,30 @@ start,end = (0x4E00, 0x9FA5)
 #         f.write(chr(codepoint))
 #
 
-common = {}
+#shoud be cached!
+# common = {}
+cache = LRUCache(maxsize=300)
 
 # statistic the incomming character
-def update(scch):
+
+def update(text):
     """
-    :param scch: char frequency update
-    :return:
+    :param text: char frequency for text
+    :return: no return
     """
-    o = scch.encode('utf8')
-    if ord(o.decode('utf8')) in range(start, end):
-        #save in sql
-        if common.get(scch):
-            common[scch] += 1
+    common = {}
+    for scch in text:
+        o = scch.encode('utf8')
+        if ord(o.decode('utf8')) in range(start, end):
+            #save in sql
+            if common.get(scch):
+                common[scch] += 1
+            else:
+                common[scch] = 1
 
         else:
-            common[scch] = 1
-            if len(common) > 100:
-                #todo: persistence and clear save and .clear()
-                pass
-        return True
-    else:
-        return False
-
+            continue
+    increment_chars(common)
 
 # input chinese unicode, return cypher code;
 def trans_code(scch):
@@ -43,7 +48,7 @@ def trans_code(scch):
     :param scch: '喊'
     :return: ord int
     """
-    return (64,64)
+    return (63,63)
 
 
 def reverse_code(cycode):
@@ -53,3 +58,13 @@ def reverse_code(cycode):
     :return:  '喊'
     """
     return '喊'
+
+def increment_chars(commons):
+    """
+    increment each chars in list
+    :param commons:
+    :return:
+    """
+    for e in commons:
+        c = Commonchar(e)
+        c.update(commons.get(e))

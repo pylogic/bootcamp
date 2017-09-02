@@ -6,6 +6,9 @@
 # 2. if simplified chinese or traditional chinese and replace
 import textprocess.textclean as tc
 
+import logging
+
+
 # used by front
 def statuses_to_data(statuses):
     """
@@ -35,7 +38,7 @@ def clean_tweet(tweet):
     u = tweet.get('user')
     user ={
         'uid': u.get('id'),
-        'name': u.get('name'),
+        'name': u.get('screen_name'),
         'allow_all_comment': u.get('allow_all_comment'),
         'follow_me': u.get('follow_me'),
         'bi_followers_count': u.get('bi_followers.count')

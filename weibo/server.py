@@ -16,7 +16,12 @@ from weibopy import WeiboClient
 # from weibo import APIClient #for p2
 from weibopy import WeiboOauth2
 
+import datetime
+import logging
+
 import viewscontroller.visualize as tv
+from viewscontroller.datamodel import User
+
 
 APP_KEY = ''
 APP_SECRET = ''
@@ -37,17 +42,15 @@ def index():
     if 'uid' in session and session['access_token']:
         client = WeiboClient(session['access_token'])
         result = client.get(suffix="statuses/public_timeline.json", params={"count":100})
-        #TODO parse text object
-        user = {'uid':session['uid'],
-                'access_token':session['access_token']}
 
-        if len(result.get('statuses')):
+        user = client.get(suffix="users/show.json", params={'uid': session['uid']})
+
+        if len(result.get('statuses'))>0 :
             data = tv.statuses_to_data(result.get('statuses'))
-
-
-
-        #return 'Logged in as %s \n %s' % (escape(session['uid']), result)
-        return render_template('index.html', data=data, user=user)
+            #return 'Logged in as %s \n %s' % (escape(session['uid']), result)
+            return render_template('index.html', data=data, user=user)
+        else:
+            return render_template('index.html', user=user)
     # return redirect(CAclient.authorize_url)
     return render_template('index.html')
 
@@ -98,6 +101,9 @@ def weibologin():
         if res.get("access_token"):
             session['access_token'] = res.get('access_token')
             session['uid'] = res.get('uid')
+            user = User(session['uid'], session['access_token'])
+            user.update(datetime.datetime.utcnow())
+
             app.logger.debug('token fetched %s' % res.get('access_token'))
             return redirect(url_for('rate'))
         else:
@@ -125,7 +131,7 @@ def rate():
 #post a secret weibo message with encryption
 
 # set the secret key.  keep this really secret:
-app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
+app.secret_key = 'yicha7zoh5Eehae3vee5cahriqu0coo3'
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', port = 8080)

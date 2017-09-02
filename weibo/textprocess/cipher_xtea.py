@@ -5,6 +5,9 @@
 
 from xtea3 import *
 
+import logging
+
+
 # this is a format perserving encryption desgin
 # one scch = 2*6 = 12bit, two scch = 24bit, not important for bit width
 # if the high 2 bit can be ignored and replaced???
