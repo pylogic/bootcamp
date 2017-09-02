@@ -126,7 +126,7 @@ def rate():
     # use preconfigured default app logger
     app.logger.debug('cards fetched %s' % len(result['statuses']))
     # need a template for complext view
-    cards = tv.statuses_to_data(result.get('statuses')).cards
+    cards = tv.statuses_to_data(result.get('statuses'))['cards']
     #
     return render_template('rate.html', cards = cards, uid = uid)
 

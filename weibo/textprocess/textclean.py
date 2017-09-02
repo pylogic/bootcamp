@@ -28,14 +28,14 @@ def text_get_username(text):
     :param text:
     :return: namedtuple( text, unames [])
     """
-    result = namedtuple('Tnames', ['text', 'unames'], verbose=True)
+    result = namedtuple('Tnames', ['text', 'unames'])
     result.text = text
     try:
         result.unames = uname_re.findall(text)
     except Exception as e:
         result.unames = []
 
-    return result
+    return result.unames
 
 # get hash tags
 def text_get_hashtag(text):
@@ -44,14 +44,14 @@ def text_get_hashtag(text):
     :param text:
     :return: result = namedtuple text str, hashtags[]
     """
-    result = namedtuple('Thtags', ['text', 'htags'], verbose=True)
+    result = namedtuple('Thtags', ['text', 'htags'])
     result.text = text
     try:
         result.htags = hashtag_re.findall(text)
     except Exception as e:
         result.htags = []
 
-    return result
+    return result.htags
 
 # get links (any kind)
 def text_get_link(text):
@@ -60,13 +60,13 @@ def text_get_link(text):
     :param text:
     :return: result namedtuple text str, links []
     """
-    result = namedtuple('Tlinks', ['text', 'links'], verbose=True)
+    result = namedtuple('Tlinks', ['text', 'links'])
     result.text = text
     try:
         result.links = link_re.findall(text)
     except Exception as e:
         result.links = []
-    return result
+    return result.links
 
 # return a cleaned text tuple
 def text_clean(text, tlinks, thtags, tnames):
@@ -81,11 +81,11 @@ def text_clean(text, tlinks, thtags, tnames):
     cleantext = link_re.sub(' ', text)
     cleantext = repl_htag_re.sub('"', cleantext)
     cleantext = repl_uname_re.sub('他', cleantext) # TODO find a better rplc for name
-    ctext = namedtuple('Ctxt', ['cleantext', 'links', 'htags', 'unames'], verbose=True)
-    ctext.cleantext = cleantext
-    ctext.links = tlinks
-    ctext.htags = thtags
-    ctext.unames = tnames
+    ctext = {}#namedtuple('Ctxt', ['cleantext', 'links', 'htags', 'unames'], verbose=True)
+    ctext['cleantext'] = cleantext
+    ctext['links'] = tlinks
+    ctext['htags'] = thtags
+    ctext['unames'] = tnames
 
     return ctext
 
@@ -97,7 +97,7 @@ def text_get_pos(cleantext):
     :param text: text tuple with clean text and named entities
     :return: structured text dict
     """
-    seg_list = jieba.cut(cleantext.cleantext)
+    seg_list = jieba.cut(cleantext)
     # res = {'text': cleantext.cleantext,
     #        'seg_list': seg_list,
     #        'links': cleantext.links,

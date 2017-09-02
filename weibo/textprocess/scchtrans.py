@@ -10,7 +10,7 @@ from textprocess.wordmodel import Commonword
 import logging
 import asyncio
 
-event_loop = asyncio.get_event_loop()
+#event_loop = asyncio.get_event_loop()
 
 start,end = (0x4E00, 0x9FA5)
 # with codecs.open("chinese.txt", "wb", encoding="utf-8") as f:
@@ -41,6 +41,7 @@ async def update(text):
 
         else:
             continue
+    event_loop = asyncio.get_event_loop()
     try:
         event_loop.run_until_complete(increment_chars(common))
     finally:

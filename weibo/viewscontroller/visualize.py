@@ -9,7 +9,7 @@ import asyncio
 import textprocess.scchtrans as ts
 
 import logging
-event_loop = asyncio.get_event_loop()
+#event_loop = asyncio.get_event_loop()
 
 # used by front
 def statuses_to_data(statuses):
@@ -56,9 +56,9 @@ def clean_tweet(tweet):
     card['mid'] = tweet.get('mid')
     card['created_at'] = tweet.get('created_at')
     try:
-        card['htags'] = tc.text_get_hashtag(tweet.get('text')).htags
-        card['unames'] = tc.text_get_username(tweet.get('text')).unames
-        card['links'] = tc.text_get_link(tweet.get('text')).links
+        card['htags'] = tc.text_get_hashtag(tweet.get('text'))
+        card['unames'] = tc.text_get_username(tweet.get('text'))
+        card['links'] = tc.text_get_link(tweet.get('text'))
     except Exception as e:
         # must logged
         pass
@@ -67,13 +67,14 @@ def clean_tweet(tweet):
         card['text'] = tc.text_clean(tweet.get('text'),
                                  card['links'],
                                  card['htags'],
-                                 card['unames']).cleantext
+                                 card['unames'])['text']
     except:
         # must logged
         card['text'] = tweet.get['text']
 
     card['posseg'] = tc.text_get_pos(card['text'])
     #add async call to char and word count
+    event_loop = asyncio.get_event_loop()
     try:
         event_loop.run_until_complete(ts.update(card['text']))
     finally:
