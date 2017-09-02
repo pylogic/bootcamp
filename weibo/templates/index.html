@@ -12,17 +12,17 @@
     {% for item in data.cards %}
         <li><a href="/user/{{ item.user.uid }}">{{ item.user.name }}</a>
             <p>{{ item.text }}</p>
-            <a>
+            <p>
                 {% for pos in item.posseg %} {{pos}}{% endfor %}
-            </a>
-            {% for link in item.links %} <a href="{{link}}">{{link}}</a> {% endfor %}
+            </p>
+            {% for link in item.links %} <a>{{link}}</a> {% endfor %}
             {% for uname in item.unames %} <a href="/user/{{uname}}">{{uname}}</a> {% endfor %}
             {% for htag in item.htags %} <a>{{htag}}</a> {% endfor %}
             {% if item.sub_card  %}
             <p>
                 {{ item.sub_card.text }}
             </p>
-            <a> {{ item.sub_card.user.name }} </a>
+            <a href="/user/{{item.sub_card.user.uid}}"> {{ item.sub_card.user.name }} </a>
             {% endif %}
         </li>
     {% endfor %}

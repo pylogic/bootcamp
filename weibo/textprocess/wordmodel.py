@@ -10,6 +10,24 @@ client = MongoClient('localhost', 27017)
 wddb = client['wordsdata']
 
 
+class Article():
+    """
+    every 100 lines of chinese char will save into one document
+    """
+    _col = wddb['article']
+    def __init__(self, article):
+        self.article = article
+        self.saved = False
+    def save(self):
+        if not self.saved:
+            if self._col.insert({'article': self.article}):
+                self.saved = True
+                return True
+            else:
+                return False
+        else:
+            return False
+
 
 class Commonchar():
     """
@@ -38,6 +56,7 @@ class Commonchar():
                  'last_seen': datetime.datetime.utcnow()
                  }
             self._col.insert(c)
+
 
 class Commonword():
     """

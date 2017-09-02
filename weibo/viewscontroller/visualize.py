@@ -11,6 +11,7 @@ import textprocess.scchtrans as ts
 import logging
 #event_loop = asyncio.get_event_loop()
 
+
 # used by front
 def statuses_to_data(statuses):
     """
@@ -64,19 +65,21 @@ def clean_tweet(tweet):
         pass
 
     try:
-        card['text'] = tc.text_clean(tweet.get('text'),
-                                 card['links'],
-                                 card['htags'],
-                                 card['unames'])['text']
+        card['text'] = tc.text_clean(tweet.get('text'))
     except:
         # must logged
-        card['text'] = tweet.get['text']
+        card['text'] = tweet.get('text')
 
     card['posseg'] = tc.text_get_pos(card['text'])
     #add async call to char and word count
-    event_loop = asyncio.get_event_loop()
+    #event_loop = asyncio.get_event_loop()
+    #try:
+    #    event_loop.run_until_complete(ts.update(card['text']))
+    #finally:
+    #    event_loop.close()
     try:
-        event_loop.run_until_complete(ts.update(card['text']))
-    finally:
-        event_loop.close()
+        ts.update(card['text'])
+    except:
+        pass
+
     return card

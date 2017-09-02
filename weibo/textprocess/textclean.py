@@ -69,7 +69,7 @@ def text_get_link(text):
     return result.links
 
 # return a cleaned text tuple
-def text_clean(text, tlinks, thtags, tnames):
+def text_clean(text):
     """
     replace links @ with \s, replace # with "
     :param text:
@@ -81,13 +81,13 @@ def text_clean(text, tlinks, thtags, tnames):
     cleantext = link_re.sub(' ', text)
     cleantext = repl_htag_re.sub('"', cleantext)
     cleantext = repl_uname_re.sub('他', cleantext) # TODO find a better rplc for name
-    ctext = {}#namedtuple('Ctxt', ['cleantext', 'links', 'htags', 'unames'], verbose=True)
-    ctext['cleantext'] = cleantext
-    ctext['links'] = tlinks
-    ctext['htags'] = thtags
-    ctext['unames'] = tnames
+    # ctext = {}#namedtuple('Ctxt', ['cleantext', 'links', 'htags', 'unames'], verbose=True)
+    # ctext['cleantext'] = cleantext
+    # ctext['links'] = tlinks
+    # ctext['htags'] = thtags
+    # ctext['unames'] = tnames
 
-    return ctext
+    return cleantext
 
 # get word pos cut
 def text_get_pos(cleantext):
