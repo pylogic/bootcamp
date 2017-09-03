@@ -21,6 +21,17 @@ class User():
         self.access_token = access_token
         # last authorize
         # last read
+    def new(self, ts):
+        """
+        new insert a user
+        :return:
+        """
+        data = {"uid": self.uid,
+                "access_token": self.access_token,
+                "since_id": 0,
+                "count": 0,
+                "last_authorize": ts}
+        return self._col.insert(data)
 
     def update(self, ts):
         """
@@ -32,10 +43,30 @@ class User():
             if not self._col.find_one_and_update({"uid": self.uid},
                                              {'$set': {'access_token': self.access_token,
                                                        'last_authorize': ts}}):
-               self._col.insert({"uid": self.uid,
-                                 "access_token": self.access_token,
-                                 "last_authorize": ts})
+               self.new(ts)
+               # self._col.insert({"uid": self.uid,
+               #                   "access_token": self.access_token,
+               #                   "last_authorize": ts})
         except Exception as e:
             return {'result': False,
                     'error': '%s' % e}
         return {'result': True}
+
+    def update_read(self, since_id, count):
+        '''
+        :param since_id:
+        :return:
+        '''
+        res = self._col.find_one_and_update(
+            {'uid': self.uid},
+            {'$set': {'since_id': since_id}},
+            {'$inc': {'count': count}})
+        return res
+
+    def last_read(self):
+        """
+        query last read id
+        :return:
+        """
+        u = self._col.find_one({"uid": self.uid})
+        return (u.get('since_id'), u.get('count'))

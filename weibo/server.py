@@ -21,6 +21,7 @@ import logging
 
 import viewscontroller.visualize as tv
 from viewscontroller.datamodel import User
+import textprocess.scchtrans as ts
 
 
 APP_KEY = ''
@@ -58,6 +59,7 @@ def index():
 def login():
     if request.method == 'POST':
         session['uid'] = request.form['uid']
+
         return redirect(url_for('login'))
     return redirect(CAclient.authorize_url)
     # return '''
@@ -70,18 +72,66 @@ def login():
 @app.route('/postweibo', methods=['GET', 'POST'])
 def postweibo():
     # send a test weibo. the posted text will truncated and add a tail
-    tail = 'https://aishe.org.cn' # must has this end
-    time = '%s I am a very very good boy. ' % datetime.datetime.now()
-    status = request.args.get('t', time)
-    sentpost = '%s %s' % (status, tail)
+    tail = 'https://aishe.org.cn 已加密' # must has this end
+    time = '%s automatically update. ' % datetime.datetime.now()
+    # status = request.args.get('t', time)
 
-    if session['access_token']:
+    if session['access_token'] and request.method == 'POST':
+        text = request.form['text']
+        text = text[:200]
+        key = request.form['key']
+        _ = ts.update(text)
+        _ = ts.update(key)
+        chars = ts.filterchars(text)
+        keychar = ts.filterchars(key)
+        ecr = ts.encryptext(chars, keychar)
+
+        if len(ecr) > 128:
+            status = ecr[:127]
+
+        sentpost = '%s %s' % (status, tail)
         client = WeiboClient(session['access_token'])
         result = client.post("statuses/share.json", data={"status":sentpost, "access_token":session['access_token']})
         # result = client.session.post('https://api.weibo.com/2/statuses/update.json', data={"status":"test article test article"})
         return result
+    elif session['access_token'] and request.method == 'GET':
+        return '''
+            <h2>加密并分享至微博</h2>
+            <a>密码1-8常用汉字,正文不超过128字偶数汉字,非汉字会被丢弃</a>
+            <form method="post">
+            <p><textarea cols=40 rows=10 name=text value='Limit 128 Char' style="background-color:BFCEDC"></textarea>
+            <p><input type=text name=key value='密码'>
+            <p><input type=submit value=ENCRYPTWB>
+        </form>
+        '''
     else:
         return redirect(url_for('index'))
+
+@app.route('/decrypt', methods=['GET', 'POST'])
+def decryptweibo():
+    """decrypt weibo"""
+    if request.method == 'GET':
+        return '''
+                   <h2>解密文字</h2>
+                   <form method="post">
+                   <p><textarea cols=40 rows=10 name=text value='' style="background-color:BFCEDC"></textarea>
+                   <p><input type=text name=key value='密码'>
+                   <p><input type=submit value=DECRYPT>
+               </form>
+               '''
+    elif session['access_token']:
+        text = request.form['text']
+        key = request.form['key']
+        # _ = ts.update(text)
+        # _ = ts.update(key)
+        chars = ts.filterchars(text)
+        keychar = ts.filterchars(key)
+        dcr = ts.decryptext(chars, keychar)
+        r = {'key': keychar,
+             'text': dcr}
+        return dcr
+    else:
+        return redirect(url_for(login))
 
 
 @app.route('/logout')
@@ -119,16 +169,23 @@ def rate():
     if not session['access_token']:
         return redirect(url_for('index'))
     # construct client, fetch home_timeline
-    client = WeiboClient(session['access_token'])
-    result = client.get('statuses/home_timeline.json', params={"count":100})
-    # construct uid if needed
     uid = session['uid']
+    user = User(uid, session['access_token'])
+    since_id, count = user.last_read()
+    client = WeiboClient(session['access_token'])
+    result = client.get('statuses/home_timeline.json', params={"since_id": since_id,
+                                                                   "count":100})
+    # construct uid if needed
+    s = result.get('statuses')
+    newcount = len(s)
+    newsince_id = s[0].get('id')
+    user.update_read(newsince_id, newcount)
     # use preconfigured default app logger
     app.logger.debug('cards fetched %s' % len(result['statuses']))
     # need a template for complext view
     cards = tv.statuses_to_data(result.get('statuses'))['cards']
     #
-    return render_template('rate.html', cards = cards, uid = uid)
+    return render_template('rate.html', cards = cards, uid = uid, count = count)
 
 #post a secret weibo message with encryption
 

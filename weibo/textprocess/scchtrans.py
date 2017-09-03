@@ -8,7 +8,11 @@ from cachetools import LRUCache
 from textprocess.wordmodel import Commonchar
 from textprocess.wordmodel import Commonword
 from textprocess.wordmodel import Article
+import textprocess.cipher_xtea as cipher
+from textprocess import generate_sub_table
+
 import logging
+import pickle
 import asyncio
 
 #event_loop = asyncio.get_event_loop()
@@ -36,7 +40,28 @@ log.addHandler(ch)
 # set logging levels, etc
 log.setLevel(logging.DEBUG)
 # statistic the incomming character
+
 textstream = []
+
+#load from pickle
+# long_dict_ctn = {}
+# with open('long_dict_ctn.p', 'rb') as f1:
+#     try:
+#         long_dict_ctn = pickle.load(f1, encoding='utf-8')
+#     except Exception as e:
+#         log.debug('%s' % e)
+# n=64
+# m=64
+# use generators
+# ntc_array = [['一'] * m for i in range(n)]
+#
+# with open('ntc_array.p', 'rb') as f2:
+#     try:
+#         ntc_array = pickle.load(f2, encoding='utf-8')
+#     except Exception as e:
+#         log.debug('%s' % e)
+long_dict_ctn = generate_sub_table.get_long_dict()
+ntc_array = generate_sub_table.get_ntc_array()
 
 def update(text):
     """
@@ -81,6 +106,7 @@ def update(text):
             textstream.clear()
         else:
             log.debug('save failed')
+    return ''.join(charlist)
 
 # input chinese unicode, return cypher code;
 def trans_code(scch):
@@ -89,8 +115,11 @@ def trans_code(scch):
     :param scch: '喊'
     :return: ord int
     """
-    return (63,63)
-
+    u = long_dict_ctn.get(scch)
+    if u:
+        return u
+    else:
+        return None
 
 def reverse_code(cycode):
     """
@@ -98,7 +127,10 @@ def reverse_code(cycode):
     :param cycode:   (64,64)
     :return:  '喊'
     """
-    return '喊'
+    if cycode[0] in range(0,64) and cycode[1] in range(0,64):
+        return ntc_array[cycode[0]][cycode[1]]
+    else:
+        return None
 
 async def increment_chars(commons):
     """
@@ -109,3 +141,75 @@ async def increment_chars(commons):
     for e in commons:
         c = Commonchar(e)
         c.update(commons.get(e))
+
+# filter for dictionaried char
+def filterchars(text):
+    """
+    input original chars
+    :param text: string
+    :return: only in dict string
+    """
+    charlist = []
+    for scch in text:
+        o = scch.encode('utf8')
+        if ord(o.decode('utf8')) in range(start, end) and long_dict_ctn.get(scch):
+            # save in sql
+            charlist.append(scch)
+    res = ''.join(charlist)
+    log.debug(' filter char result: %s' % res)
+
+    return res
+
+# this command call encryption
+def encryptext(text, key):
+    """
+    :param text: cleaned by filter
+    :return: encrypted char string
+    """
+    data_in = []
+    for e in text:
+        if long_dict_ctn.get(e):
+            data_in.append(trans_code(e))
+
+    key = bytearray(key, encoding='chinese')
+    keybyte = b' '*16
+    keybyte = key + keybyte
+    keybyte = keybyte[0:16]
+
+    log.debug('key is %s' % keybyte)
+
+
+    encr = cipher.encrypt(data_in, keybyte)
+    data_out = ''
+    for e in encr:
+        data_out += ntc_array[e[0]][e[1]]
+
+    log.debug('rec string:%s' % data_out)
+    return data_out
+
+# call decryption
+def decryptext(text, key):
+    """
+    :param text:
+    :param key:
+    :return: decrypt char string
+    """
+    data_in = []
+    for e in text:
+        if long_dict_ctn.get(e):
+            data_in.append(trans_code(e))
+
+    key = bytearray(key, encoding='chinese')
+    keybyte = b' ' * 16
+    keybyte = key + keybyte
+    keybyte = keybyte[0:16]
+
+    log.debug('key is %s' % keybyte)
+
+    decr = cipher.decrypt(data_in, keybyte)
+    data_out = ''
+    for e in decr:
+        data_out += ntc_array[e[0]][e[1]]
+
+    log.debug('dec string:%s' % data_out)
+    return data_out
