@@ -57,10 +57,12 @@ class User():
         :param since_id:
         :return:
         '''
+        count = self.count + count
         res = self._col.find_one_and_update(
             {'uid': self.uid},
-            {'$set': {'since_id': since_id}},
-            {'$inc': {'count': count}})
+            {'$set': {'since_id': since_id,
+                      'count': count,
+                      'last_read': datetime.datetime.utcnow()}})
         return res
 
     def last_read(self):
@@ -69,4 +71,6 @@ class User():
         :return:
         """
         u = self._col.find_one({"uid": self.uid})
-        return (u.get('since_id'), u.get('count'))
+        self.since_id = u.get('since_id')
+        self.count = u.get('count', 0)
+        return (u.get('since_id'), u.get('count', 0))

@@ -12,6 +12,7 @@ from flask import render_template
 from flask import request
 from flask import session
 from flask import url_for
+from flask import jsonify
 from weibopy import WeiboClient
 # from weibo import APIClient #for p2
 from weibopy import WeiboOauth2
@@ -42,7 +43,7 @@ app = Flask(__name__)
 def index():
     if 'uid' in session and session['access_token']:
         client = WeiboClient(session['access_token'])
-        result = client.get(suffix="statuses/public_timeline.json", params={"count":100})
+        result = client.get(suffix="statuses/public_timeline.json", params={"count":8})
 
         user = client.get(suffix="users/show.json", params={'uid': session['uid']})
 
@@ -72,7 +73,7 @@ def login():
 @app.route('/postweibo', methods=['GET', 'POST'])
 def postweibo():
     # send a test weibo. the posted text will truncated and add a tail
-    tail = 'https://aishe.org.cn 已加密' # must has this end
+    tail = 'https://aishe.org.cn 加密内容' # must has this end
     time = '%s automatically update. ' % datetime.datetime.now()
     # status = request.args.get('t', time)
 
@@ -87,13 +88,13 @@ def postweibo():
         ecr = ts.encryptext(chars, keychar)
 
         if len(ecr) > 128:
-            status = ecr[:127]
+            ecr = ecr[:127]
 
-        sentpost = '%s %s' % (status, tail)
+        sentpost = '%s %s' % (ecr, tail)
         client = WeiboClient(session['access_token'])
         result = client.post("statuses/share.json", data={"status":sentpost, "access_token":session['access_token']})
         # result = client.session.post('https://api.weibo.com/2/statuses/update.json', data={"status":"test article test article"})
-        return result
+        return jsonify(result)
     elif session['access_token'] and request.method == 'GET':
         return '''
             <h2>加密并分享至微博</h2>
