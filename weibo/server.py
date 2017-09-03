@@ -178,14 +178,15 @@ def rate():
                                                                    "count":100})
     # construct uid if needed
     s = result.get('statuses')
-    newcount = len(s)
-    newsince_id = s[0].get('id')
-    user.update_read(newsince_id, newcount)
+    if len(s) > 0:
+        newcount = len(s)
+        newsince_id = s[0].get('id')
+        user.update_read(newsince_id, newcount)
     # use preconfigured default app logger
-    app.logger.debug('cards fetched %s' % len(result['statuses']))
-    # need a template for complext view
-    cards = tv.statuses_to_data(result.get('statuses'))['cards']
-    #
+
+        cards = tv.statuses_to_data(result.get('statuses'))['cards']
+    else:
+        cards = []
     return render_template('rate.html', cards = cards, uid = uid, count = count)
 
 #post a secret weibo message with encryption
