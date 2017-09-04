@@ -38,14 +38,41 @@ def index():
         return ecr
 
     else:
-        return '''
-            <p>Encrypt Weibo post</p>
-            <form method="post">
-            <p><textarea cols=40 rows=10 name=text style="background-color:BFCEDC"></textarea>
-            <p><input type=text name=key value='ENCRYPT KEY(8)'>
-            <p><input type=submit value=TEST>
-        </form>
-        '''
+        return render_template('index.html')
+        # return '''
+        #     <p>Encrypt Weibo post</p>
+        #     <form method="post">
+        #     <p><textarea cols=40 rows=10 name=text style="background-color:BFCEDC"></textarea>
+        #     <p><input type=text name=key value='ENCRYPT KEY(8)'>
+        #     <p><input type=submit value=TEST>
+        # </form>
+        # '''
+
+
+@app.route('/encrypt', methods=['POST'])
+def encrypt():
+    """only for api call"""
+    try:
+        text = request.form['text']
+        key = request.form['key']
+    except:
+        return jsonify({'error': 'no data'})
+
+    if 0 < len(text) < 200 and 0 < len(key)<8:
+        chars = ts.filterchars(text)
+        keychar = ts.filterchars(key)
+
+        if len(chars)>0 and len(keychar) >0:
+           ecr = ts.encryptext(chars, keychar)
+           return jsonify({'key': keychar, 'text': ecr})
+        else:
+            return jsonify({'error': 'no valid chars'})
+
+
+    else:
+        return jsonify({'error': 'too long text or key'})
+
+
 
 @app.route('/dec', methods=['GET', 'POST'])
 def decrypt():
