@@ -78,7 +78,7 @@ def login():
 @app.route('/postweibo', methods=['GET', 'POST'])
 def postweibo():
     # send a test weibo. the posted text will truncated and add a tail
-    tail = 'https://aishe.org.cn 加密内容' # must has this end
+
     time = '%s automatically update. ' % datetime.datetime.now()
     # status = request.args.get('t', time)
 
@@ -92,9 +92,9 @@ def postweibo():
         keychar = ts.filterchars(key)
         ecr = ts.encryptext(chars, keychar)
 
-        if len(ecr) > 128:
-            ecr = ecr[:127]
-
+        if len(ecr) > 122:
+            ecr = ecr[:122]
+        tail = 'https://aishe.org.cn 密码:%s' % keychar # must has this end
         sentpost = '%s %s' % (ecr, tail)
         client = WeiboClient(session['access_token'])
         result = client.post("statuses/share.json", data={"status":sentpost, "access_token":session['access_token']})
