@@ -12,9 +12,16 @@ import logging
 import textprocess.scchtrans as ts
 from cachetools import LRUCache
 import datetime
+import configparser
+
 cache = LRUCache(maxsize=100)
 
 app = Flask(__name__)
+
+config = configparser.ConfigParser()
+# setting = config.read('config.ini')
+# print('setting=%s' % config['SectionOne']['Param1'] )
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():

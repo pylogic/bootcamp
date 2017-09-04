@@ -48,7 +48,7 @@ def clean_tweet(tweet):
         'follow_me': u.get('follow_me'),
         'bi_followers_count': u.get('bi_followers.count')
     }
-    card['user'] = user
+    card['user'] = u
     pics = tweet.get('thumbnail_pic')
     if pics:
         card['pics'] = pics

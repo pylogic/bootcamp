@@ -17,6 +17,7 @@ from weibopy import WeiboClient
 # from weibo import APIClient #for p2
 from weibopy import WeiboOauth2
 
+import configparser
 import datetime
 import logging
 
@@ -25,9 +26,13 @@ from viewscontroller.datamodel import User
 import textprocess.scchtrans as ts
 
 
-APP_KEY = ''
-APP_SECRET = ''
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+APP_KEY = config['server']['app_key']
+APP_SECRET = config['server']['app_secret']
 CALLBACK_URL = 'https://aishe.org.cn/weibologin'
+
 # CClient = APIClient(app_key=APP_KEY, app_secret=APP_SECRET, redirect_uri=CALLBACK_URL)
 CAclient = WeiboOauth2(APP_KEY, APP_SECRET, CALLBACK_URL)
 
@@ -106,10 +111,35 @@ def postweibo():
         </form>
         '''
     else:
-        return redirect(url_for('index'))
+        return redirect(url_for('login'))
+
+
+@app.route('/encrypt', methods=['POST'])
+def encrypt():
+    """only for api call"""
+    try:
+        text = request.form['text']
+        key = request.form['key']
+    except:
+        return jsonify({'error': 'no data'})
+
+    if 0 < len(text) < 200 and 0 < len(key)<8:
+        chars = ts.filterchars(text)
+        keychar = ts.filterchars(key)
+
+        if len(chars)>0 and len(keychar) >0:
+           ecr = ts.encryptext(chars, keychar)
+           return jsonify({'key': keychar, 'text': ecr})
+        else:
+            return jsonify({'error': 'no valid chars'})
+
+
+    else:
+        return jsonify({'error': 'too long text or key'})
+
 
 @app.route('/decrypt', methods=['GET', 'POST'])
-def decryptweibo():
+def decrypt():
     """decrypt weibo"""
     if request.method == 'GET':
         return '''
@@ -120,7 +150,8 @@ def decryptweibo():
                    <p><input type=submit value=DECRYPT>
                </form>
                '''
-    elif session['access_token']:
+    #elif session['access_token']:
+    else:
         text = request.form['text']
         key = request.form['key']
         # _ = ts.update(text)
@@ -131,8 +162,8 @@ def decryptweibo():
         r = {'key': keychar,
              'text': dcr}
         return dcr
-    else:
-        return redirect(url_for(login))
+    #else:
+    #    return redirect(url_for(login))
 
 
 @app.route('/logout')

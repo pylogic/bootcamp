@@ -2,34 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>公共微博</title>
+    <title>文字加密</title>
 </head>
 <body>
- {% if data %}
+{% if data %}
  <h2>  </h2>
- <a href="/rate"> 你的未读 </a> <a href="/postweibo">发送加密微博</a> <a href="/decrypt"> 解密文字 </a>
- <ul id="cards">
-    {% for item in data.cards %}
-        <li><a href="/user/{{ item.user.uid }}">{{ item.user.name }}</a>
-            <p>{{ item.text }}</p>
-            <p>
-                {% for pos in item.posseg %} {{pos}}{% endfor %}
-            </p>
-            {% for link in item.links %} <a>{{link}}</a> {% endfor %}
-            {% for uname in item.unames %} <a href="/user/{{uname}}">{{uname}}</a> {% endfor %}
-            {% for htag in item.htags %} <a>{{htag}}</a> {% endfor %}
-            {% if item.sub_card  %}
-            <p>
-                {{ item.sub_card.text }}
-            </p>
-            <a href="/user/{{item.sub_card.user.uid}}"> {{ item.sub_card.user.name }} </a>
-            {% endif %}
-        </li>
-    {% endfor %}
-    </ul>
- {% else %}
-  <h1>Please Login First</h1>
- <a href="/login">Weibo Login</a>
- {% endif %}
+ <a href="/rate"> ->你的未读    </a> <a href="/postweibo">   ->发送加密微博  </a> <a href="/decrypt">   ->解密文字 </a>
+
+<form action="{{ url_for('encrypt') }}" method=post class=add-entry>
+      <dl>
+        <dt>Encrypt Text: (Key仅限小于8汉字，文本不超过200汉字)
+        <dd><input type=text size=14 name=key>
+        <dt>Text:
+        <dd><textarea name=text rows=5 cols=40></textarea>
+        <dd><input type=submit value=Encrypt>
+      </dl>
+    </form>
 </body>
 </html>

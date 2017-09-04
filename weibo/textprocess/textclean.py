@@ -80,7 +80,7 @@ def text_clean(text):
     """
     cleantext = link_re.sub(' ', text)
     cleantext = repl_htag_re.sub('"', cleantext)
-    cleantext = repl_uname_re.sub('他', cleantext) # TODO find a better rplc for name
+    # cleantext = repl_uname_re.sub('他', cleantext) # TODO find a better rplc for name
     # ctext = {}#namedtuple('Ctxt', ['cleantext', 'links', 'htags', 'unames'], verbose=True)
     # ctext['cleantext'] = cleantext
     # ctext['links'] = tlinks
