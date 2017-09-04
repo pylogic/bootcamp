@@ -38,7 +38,7 @@ ch.setFormatter(formatter)
 log.addHandler(ch)
 # set formatters,
 # set logging levels, etc
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 # statistic the incomming character
 
 textstream = []

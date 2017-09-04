@@ -19,7 +19,7 @@ ch.setFormatter(formatter)
 log.addHandler(ch)
 # set formatters,
 # set logging levels, etc
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 with codecs.open('./textprocess/charfrequency.txt', encoding='utf-8') as f:
     content = f.readlines()
