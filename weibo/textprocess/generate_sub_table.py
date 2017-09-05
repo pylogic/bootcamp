@@ -51,11 +51,11 @@ for i in range(0,64):
         long_dict_ctn[char] = ns
         log.debug('%s=%s,%s' % (char, j, i))
 
-with open( "long_dict_ctn.p", "wb" ) as f1:
-    pickle.dump(long_dict_ctn, f1)
+#with open( "long_dict_ctn.p", "wb" ) as f1:
+#    pickle.dump(long_dict_ctn, f1)
 
-with open('ntc_array.p', 'wb') as f2:
-    pickle.dump(ntc_array, f2)
+#with open('ntc_array.p', 'wb') as f2:
+#    pickle.dump(ntc_array, f2)
 
 cn1 = 32
 cn2 = 19

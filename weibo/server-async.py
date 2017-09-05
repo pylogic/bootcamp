@@ -16,12 +16,24 @@ import configparser
 
 cache = LRUCache(maxsize=100)
 
+
 app = Flask(__name__)
+
+# class CustomFlask(Flask):
+# jinja_options = Flask.jinja_options.copy()
+# jinja_options.update(dict(
+# block_start_string='$$',
+# block_end_string='$$',
+# variable_start_string='$',
+# variable_end_string='$',
+# comment_start_string='$#',
+# comment_end_string='#$',
+# ))
 
 config = configparser.ConfigParser()
 # setting = config.read('config.ini')
 # print('setting=%s' % config['SectionOne']['Param1'] )
-
+app.static_url_path = '/static'
 
 @app.route('/', methods=['GET', 'POST'])
 def index():

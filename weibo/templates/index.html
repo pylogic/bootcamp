@@ -1,22 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>文字加密</title>
+    <script src="https://unpkg.com/vue"></script>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
 </head>
+
 <body>
 
- <h2>  </h2>
- <a href="/rate"> ->你的未读    </a> <a href="/postweibo">   ->发送加密微博  </a> <a href="/decrypt">   ->解密文字 </a>
+    <h2> </h2>
+    <a href="/rate"> ->你的未读    </a> <a href="/postweibo">   ->发送加密微博  </a> <a href="/decrypt">   ->解密文字 </a>
 
-<form action="{{ url_for('encrypt') }}" method=post class=add-entry>
-      <dl>
-        <dt>Encrypt Text: (Key仅限小于8汉字，文本不超过200汉字)
+    <form action="{{ url_for('encrypt') }}" method=post class=add-entry>
+        <dl>
+            <dt>Encrypt Text: (Key仅限小于8汉字，文本不超过200汉字)
         <dd><input type=text size=14 name=key>
         <dt>Text:
         <dd><textarea name=text rows=5 cols=40></textarea>
         <dd><input type=submit value=Encrypt>
       </dl>
     </form>
+{% raw %}
+
+<div >
+
+    <template v-if="loginType === 'username'">
+  <label>Username</label>
+  <input placeholder="Enter your username" key="username-input">
+</template>
+<template v-else>
+  <label>Email</label>
+  <input placeholder="Enter your email address" key="email-input">
+</template>
+
+</div>
+
 </body>
+
+
+<script>
+
+
+
+</script>
+
+{% endraw %}
 </html>
