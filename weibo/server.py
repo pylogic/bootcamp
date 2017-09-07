@@ -55,11 +55,11 @@ def index():
         if len(result.get('statuses'))>0 :
             data = tv.statuses_to_data(result.get('statuses'))
             #return 'Logged in as %s \n %s' % (escape(session['uid']), result)
-            return render_template('index.html', data=data, user=user)
+            return render_template('index-o.html', data=data, user=user)
         else:
-            return render_template('index.html', user=user)
+            return render_template('index-o.html', user=user)
     # return redirect(CAclient.authorize_url)
-    return render_template('index.html')
+    return render_template('index-o.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -100,7 +100,7 @@ def postweibo():
         result = client.post("statuses/share.json", data={"status":sentpost, "access_token":session['access_token']})
         # result = client.session.post('https://api.weibo.com/2/statuses/update.json', data={"status":"test article test article"})
         return jsonify(result)
-    elif session['access_token'] and request.method == 'GET':
+    elif 'access_token' in session and request.method == 'GET':
         return '''
             <h2>加密并分享至微博</h2>
             <a>密码1-8常用汉字,正文不超过128字偶数汉字,非汉字会被丢弃</a>
@@ -200,7 +200,7 @@ def rate():
     #this parse and visulize the weibo object
     # login protect
     if not 'access_token' in session:
-        return redirect(url_for('weibologin'))
+        return redirect(url_for('login'))
     # construct client, fetch home_timeline
     uid = session['uid']
     user = User(uid, session['access_token'])
