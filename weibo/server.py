@@ -46,7 +46,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    if 'uid' in session and session['access_token']:
+    if 'uid' in session and 'access_token' in session:
         client = WeiboClient(session['access_token'])
         result = client.get(suffix="statuses/public_timeline.json", params={"count":8})
 
@@ -82,7 +82,7 @@ def postweibo():
     time = '%s automatically update. ' % datetime.datetime.now()
     # status = request.args.get('t', time)
 
-    if session['access_token'] and request.method == 'POST':
+    if 'access_token' in session and request.method == 'POST':
         text = request.form['text']
         text = text[:200]
         key = request.form['key']
@@ -129,7 +129,8 @@ def encrypt():
 
         if len(chars)>0 and len(keychar) >0:
            ecr = ts.encryptext(chars, keychar)
-           return jsonify({'key': keychar, 'text': ecr})
+           # return jsonify({'key': keychar, 'text': ecr})
+           return ecr
         else:
             return jsonify({'error': 'no valid chars'})
 
@@ -198,8 +199,8 @@ def weibologin():
 def rate():
     #this parse and visulize the weibo object
     # login protect
-    if not session['access_token']:
-        return redirect(url_for('index'))
+    if not 'access_token' in session:
+        return redirect(url_for('weibologin'))
     # construct client, fetch home_timeline
     uid = session['uid']
     user = User(uid, session['access_token'])

@@ -31,8 +31,20 @@ app = Flask(__name__)
 # ))
 
 config = configparser.ConfigParser()
-# setting = config.read('config.ini')
+setting = config.read('config.ini')
 # print('setting=%s' % config['SectionOne']['Param1'] )
+HOST = '0.0.0.0'
+PORT = 8080
+MODE = 'dev'
+try:
+    HOST = config['Server']['HOST']
+    PORT = config['Server']['PORT']
+    MODE = config['Server']['MODE']
+except:
+    print('load fail, use default')
+
+
+
 app.static_url_path = '/static'
 
 @app.route('/', methods=['GET', 'POST'])
@@ -112,4 +124,4 @@ def decrypt():
 
 app.secret_key = 'yicha7zoh5Eehae3vee5cahriqu0coo3'
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host=HOST, port=PORT)
