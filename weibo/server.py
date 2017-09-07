@@ -48,7 +48,7 @@ app = Flask(__name__)
 def index():
     if 'uid' in session and 'access_token' in session:
         client = WeiboClient(session['access_token'])
-        result = client.get(suffix="statuses/public_timeline.json", params={"count":8})
+        result = client.get(suffix="statuses/public_timeline.json", params={"count":5})
 
         user = client.get(suffix="users/show.json", params={'uid': session['uid']})
 
