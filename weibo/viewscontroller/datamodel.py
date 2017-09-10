@@ -74,3 +74,22 @@ class User():
         self.since_id = u.get('since_id')
         self.count = u.get('count', 0)
         return (u.get('since_id'), u.get('count', 0))
+
+    def keygen(self, sk, vk):
+        """save keygen"""
+        u = self._col.find_one({"uid": self.uid})
+        if u.get('vk'):
+            return False
+            # raise BaseException('already keygened')
+        else:
+            res = self._col.find_one_and_update(
+                {'uid': self.uid},
+                {'$set': {'sk': sk,
+                          'vk': vk}}
+            )
+            return res
+
+    def get_vk(self):
+        u = self._col.find_one({"uid": self.uid})
+        return u.get('vk')
+
