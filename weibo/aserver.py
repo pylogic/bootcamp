@@ -24,7 +24,7 @@ import logging
 import viewscontroller.visualize as tv
 from viewscontroller.datamodel import User
 import textprocess.scchtrans as ts
-import puer as puer
+import puer.puer as puer
 import viewfunc
 
 config = configparser.ConfigParser()
@@ -68,7 +68,7 @@ def index():
 def keygen():
     if 'access_token' in session and 'uid' in session:
         user = User(session['uid'], session['access_token'])
-        sk, vk = puer.puer.kengen()
+        sk, vk = puer.kengen()
         if user.keygen(sk, vk):
             return 'sk=%s vk=%s' % (sk, vk)
         else:
@@ -102,7 +102,7 @@ def postweibo():
         key = request.form['key']
         _ = ts.update(text)
         _ = ts.update(key)
-        ecr = puer.puer.encrypt(key, text)
+        ecr = puer.encrypt(key, text)
 
         if len(ecr) > 122:
             ecr = ecr[:122]
@@ -140,7 +140,7 @@ def encrypt():
         keychar = ts.filterchars(key)
 
         if len(chars)>0 and len(keychar) >0:
-           ecr = ts.encryptext(chars, keychar)
+           ecr = puer.encrypt(key, text)
            # return jsonify({'key': keychar, 'text': ecr})
            return ecr
         else:
@@ -167,13 +167,7 @@ def decrypt():
     else:
         text = request.form['text']
         key = request.form['key']
-        # _ = ts.update(text)
-        # _ = ts.update(key)
-        chars = ts.filterchars(text)
-        keychar = ts.filterchars(key)
-        dcr = ts.decryptext(chars, keychar)
-        r = {'key': keychar,
-             'text': dcr}
+        dcr = puer.decrypt(key, text)
         return dcr
     #else:
     #    return redirect(url_for(login))
