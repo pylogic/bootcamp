@@ -82,7 +82,7 @@ def signpost():
     if 'access_token' in session and request.method == 'POST':
         msg = request.form['msg']
         sk = request.form['sk']
-        sig = puer.puer.sign(sk, msg)
+        sig = puer.sign(sk, msg)
 
         return '%s %s'%(msg, sig)
     else:
