@@ -130,6 +130,13 @@
                   key: this.key,
                   token: this.token
               })
+              .then(function(response){
+                  vm.result = ''
+                  vm.text = ''
+              })
+              .catch(function(error){
+                  vm.result.res = '粗线了错误'
+              })
             },
             getAnswer: _.debounce(
                 function() {
@@ -137,7 +144,6 @@
                     //     this.result = 'Questions usually contain a question mark. ;-)'
                     //     return
                     // }
-                    this.result = 'computing...'
                     var vm = this
                     axios.post('/puer/api', {
                             text: this.text,

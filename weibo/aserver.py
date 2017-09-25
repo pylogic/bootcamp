@@ -150,15 +150,15 @@ def postweibo():
         key = request.get_json().get('key')
         _ = ts.update(text)
         _ = ts.update(key)
-        ecr = puer.encrypt(key, text)
+        # ecr = puer.encrypt(key, text)
         token = request.get_json().get('token')
         if not token:
             return jsonify({'error': 'token missing'})
 
-        if len(ecr) > 122:
-            ecr = ecr[:122]
+        # if len(ecr) > 122:
+        #     ecr = ecr[:122]
         tail = 'https://aishe.org.cn/puer #<%s' % key # must has this end
-        sentpost = '%s %s' % (ecr, tail)
+        sentpost = '%s %s' % (text, tail)
         client = WeiboClient(token)
         result = client.post("statuses/share.json", data={"status":sentpost, "access_token":session['access_token']})
         # result = client.session.post('https://api.weibo.com/2/statuses/update.json', data={"status":"test article test article"})
@@ -248,7 +248,7 @@ def weibologin():
             user.update(datetime.datetime.utcnow())
 
             app.logger.debug('token fetched %s' % res.get('access_token'))
-            return redirect(url_for('rate'))
+            return redirect('')
         else:
             return 'code error'
     else:
