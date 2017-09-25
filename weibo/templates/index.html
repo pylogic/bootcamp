@@ -3,80 +3,140 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>文字加密</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>普洱</title>
     <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vue-material"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+    <link href="https://unpkg.com/vue-material/dist/vue-material.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
+    <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+    <!-- <link rel="stylesheet" type="text/css" href="/static/style.css"> -->
 </head>
 
 <body>
+    <div id="app">
+        <md-toolbar>
+            <h1 class="md-title" style="flex: 1">普洱：汉字有限域加密</h1>
+        </md-toolbar>
+        <md-layout md-column md-flex-offset="5">
+            <md-subheader>基于块加密算法，奇数长度末位有误差</md-subheader>
+            <md-layout md-align="center" md-flex-xsmall="100" md-flex-small="50" md-flex-medium="33">
+                <md-input-container>
+                    <label>不超过200字</label>
+                    <md-textarea v-model="text"></md-textarea>
+                </md-input-container>
 
-    <h2> </h2>
-    <a href="/rate"> ->你的未读    </a> <a href="/postweibo">   ->发送加密微博  </a> <a href="/decrypt">   ->解密文字 </a>
+                <md-input-container md-has-password>
+                    <label>Key</label>
+                    <md-input v-model="key" placeholder="中文密钥"></md-input>
+                </md-input-container>
+            </md-layout>
+            <md-layout md-align="center" md-flex-xsmall="100" md-flex-small="50" md-flex-medium="33"></md-layout>
+            <div>
+                <md-radio v-model="mode" name="my-test-group1" md-value="enc">Encryption</md-radio>
+                <md-radio v-model="mode" name="my-test-group1" md-value="dec">Decryption</md-radio>
 
-    <form action="{{ url_for('encrypt') }}" method=post class=add-entry>
-        <dl>
-            <dt>Encrypt Text: (Key仅限小于8汉字，文本不超过200汉字)
-        <dd><input type=text size=14 name=key>
-        <dt>Text:
-        <dd><textarea name=text rows=5 cols=40></textarea>
-        <dd><input type=submit value=Encrypt>
-      </dl>
-    </form>
-{% raw %}
+            </div>
+        </md-layout>
+        <md-layout md-align="center" md-flex-xsmall="100" md-flex-small="50" md-flex-medium="33">
+            <md-button class="md-raised md-primary" v-on:click="getAnswer">Go</md-button>
 
-<div id="app">
+        </md-layout>
+        <md-layout md-align="center" md-flex-xsmall="100" md-flex-small="50" md-flex-medium="33">
 
-    <template v-if="loginType === 'username'">
-  <label>Username</label>
-  <input placeholder="Enter your username" key="username-input">
-</template>
-<template v-else>
-  <label>Email</label>
-  <input placeholder="Enter your email address" key="email-input">
-</template>
-<button v-on:click="reverseMessage">Reverse Message</button>
-</div>
+            <div v-if="result">
+                <md-card md-with-hover>
+                    <template v-if="mode == 'enc'">
+                            <md-card-header>
+                                    <div class="md-title">已加密</div>
+                                    <div class="md-subhead">仅常用中文字</div>
+                                </md-card-header>
+                              </template>
+                    <template v-else>
+                            <md-card-header>
+                                    <div class="md-title">已解密</div>
+                                    <div class="md-subhead">仅常用中文字</div>
+                                </md-card-header>
+                              </template>
+                    <md-card-content>
+                        {{ result.res }}
+                    </md-card-content>
+                    <md-card-actions>
+                        <md-button>分享</md-button>
+                    </md-card-actions>
+                </md-card>
+            </div>
+        </md-layout>
+
+    </div>
+    </md-layout>
+
+    </div>
+
 
 </body>
-
-
 <script>
-var app = new Vue({
-  el: '#app-5',
-  data: {
-    message: 'Hello Vue.js!'
-  },
-  methods: {
-    reverseMessage: function () {
-      this.message = this.message.split('').reverse().join('')
-    },
-        getAnswer: _.debounce(
-      function () {
-        if (this.question.indexOf('?') === -1) {
-          this.answer = 'Questions usually contain a question mark. ;-)'
-          return
+    Vue.use(VueMaterial)
+
+    Vue.material.registerTheme({
+        default: {
+            primary: {
+                color: 'light-green',
+                hue: 700
+            },
+            accent: 'red'
+        },
+        teal: {
+            primary: 'blue',
+            accent: 'pink'
+        },
+        purple: {
+            primary: 'purple',
+            accent: 'orange'
         }
-        this.answer = 'Thinking...'
-        var vm = this
-        axios.get('https://yesno.wtf/api')
-          .then(function (response) {
-            vm.answer = _.capitalize(response.data.answer)
-          })
-          .catch(function (error) {
-            vm.answer = 'Error! Could not reach the API. ' + error
-          })
-      },
-      // This is the number of milliseconds we wait for the
-      // user to stop typing.
-      500
-    )
-  }
-})
+    })
 
-
+    var app = new Vue({
+        el: '#app',
+        data: {
+            message: 'Hello Vue.js!',
+            text: '',
+            key: '',
+            result: '',
+            mode: 'enc'
+        },
+        methods: {
+            reverseMessage: function() {
+                this.message = this.message.split('').reverse().join('')
+            },
+            getAnswer: _.debounce(
+                function() {
+                    // if (this.text.indexOf('?') === -1) {
+                    //     this.result = 'Questions usually contain a question mark. ;-)'
+                    //     return
+                    // }
+                    this.result = 'computing...'
+                    var vm = this
+                    axios.post('/api', {
+                            text: this.text,
+                            key: this.key,
+                            mode: this.mode
+                        })
+                        .then(function(response) {
+                            vm.result = response.data
+                        })
+                        .catch(function(error) {
+                            vm.result = 'Error! Could not reach the API. ' + error
+                        })
+                },
+                // This is the number of milliseconds we wait for the
+                // user to stop typing.
+                500
+            )
+        }
+    })
 </script>
 
-{% endraw %}
 </html>
