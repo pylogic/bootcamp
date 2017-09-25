@@ -43,7 +43,7 @@
         <md-layout md-align="center" md-flex-xsmall="100" md-flex-small="50" md-flex-medium="33">
            (% if not user %)
             <md-button class="md-raised md-primary" v-on:click="getAnswer">Go</md-button>
-            <md-button class="md-raised md-primary" href="/login">Weibo login</md-button>
+            <md-button class="md-raised md-primary" href="/puer/login">Weibo login</md-button>
             (% else %)
             <md-button class="md-raised md-primary" v-on:click="getAnswer">Go</md-button>
             
@@ -74,7 +74,7 @@
                     </md-card-actions>
                     (% else %)
                     <md-card-actions>
-                        <md-button href="/login">登陆微博</md-button>
+                        <md-button href="/puer/login">登陆微博</md-button>
                     </md-card-actions>
                     (% endif %)
                 </md-card>
@@ -125,7 +125,7 @@
             },
             postweibo: function() {
               var vm = this
-              axios.post('/postweibo', {
+              axios.post('/puer/postweibo', {
                   text: this.result.res,
                   key: this.key,
                   token: this.token
@@ -139,7 +139,7 @@
                     // }
                     this.result = 'computing...'
                     var vm = this
-                    axios.post('/api', {
+                    axios.post('/puer/api', {
                             text: this.text,
                             key: this.key,
                             mode: this.mode
