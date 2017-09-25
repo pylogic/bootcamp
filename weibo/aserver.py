@@ -120,7 +120,7 @@ def keygen():
         else:
             return user.get_vk()
     else:
-        return redirect(CAclient.authorize_url())
+        return redirect(CAclient.authorize_url)
 
 @app.route('/signpost', methods=['GET', 'POST'])
 def signpost():
@@ -225,7 +225,7 @@ def decrypt():
 
 @app.route('/login')
 def login():
-    return redirect(CAclient.authorize_url())
+    return redirect(CAclient.authorize_url)
 
 @app.route('/logout')
 def logout():
@@ -260,7 +260,7 @@ def rate():
     #this parse and visulize the weibo object
     # login protect
     if not 'access_token' in session:
-        return redirect(CAclient.authorize_url())
+        return redirect(CAclient.authorize_url)
     # construct client, fetch home_timeline
     uid = session['uid']
     user = User(uid, session['access_token'])
