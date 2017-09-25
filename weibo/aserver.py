@@ -248,7 +248,7 @@ def weibologin():
             user.update(datetime.datetime.utcnow())
 
             app.logger.debug('token fetched %s' % res.get('access_token'))
-            return redirect('')
+            return redirect('/puer')
         else:
             return 'code error'
     else:
