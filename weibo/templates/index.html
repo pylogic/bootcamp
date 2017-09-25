@@ -24,11 +24,11 @@
             <md-subheader>基于块加密算法，奇数长度末位有误差</md-subheader>
             <md-layout md-align="center" md-flex-xsmall="100" md-flex-small="50" md-flex-medium="33">
                 <md-input-container>
-                    <label>不超过200字</label>
+                    <label>不超过122字</label>
                     <md-textarea v-model="text"></md-textarea>
                 </md-input-container>
 
-                <md-input-container md-has-password>
+                <md-input-container>
                     <label>Key</label>
                     <md-input v-model="key" placeholder="中文密钥"></md-input>
                 </md-input-container>
@@ -41,8 +41,13 @@
             </div>
         </md-layout>
         <md-layout md-align="center" md-flex-xsmall="100" md-flex-small="50" md-flex-medium="33">
+           (% if not user %)
             <md-button class="md-raised md-primary" v-on:click="getAnswer">Go</md-button>
-
+            <md-button class="md-raised md-primary" href="/login">Weibo login</md-button>
+            (% else %)
+            <md-button class="md-raised md-primary" v-on:click="getAnswer">Go</md-button>
+            
+           (% endif %)
         </md-layout>
         <md-layout md-align="center" md-flex-xsmall="100" md-flex-small="50" md-flex-medium="33">
 
@@ -63,9 +68,15 @@
                     <md-card-content>
                         {{ result.res }}
                     </md-card-content>
+                    (% if user %)
                     <md-card-actions>
-                        <md-button>分享</md-button>
+                        <md-button v-on:click="postweibo">微博分享</md-button>
                     </md-card-actions>
+                    (% else %)
+                    <md-card-actions>
+                        <md-button href="/login">登陆微博</md-button>
+                    </md-card-actions>
+                    (% endif %)
                 </md-card>
             </div>
         </md-layout>
@@ -83,7 +94,7 @@
     Vue.material.registerTheme({
         default: {
             primary: {
-                color: 'light-green',
+                color: 'brown',
                 hue: 700
             },
             accent: 'red'
@@ -105,11 +116,20 @@
             text: '',
             key: '',
             result: '',
+            token: '(( user.token ))',
             mode: 'enc'
         },
         methods: {
             reverseMessage: function() {
                 this.message = this.message.split('').reverse().join('')
+            },
+            postweibo: function() {
+              var vm = this
+              axios.post('/postweibo', {
+                  text: this.result.res,
+                  key: this.key,
+                  token: this.token
+              })
             },
             getAnswer: _.debounce(
                 function() {

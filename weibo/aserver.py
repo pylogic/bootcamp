@@ -37,32 +37,78 @@ CALLBACK_URL = config['server']['loginpath']
 # CClient = APIClient(app_key=APP_KEY, app_secret=APP_SECRET, redirect_uri=CALLBACK_URL)
 CAclient = WeiboOauth2(APP_KEY, APP_SECRET, CALLBACK_URL)
 
-INDEXURL = 'https://aishe.org.cn/'
+INDEXURL = 'https://aishe.org.cn/puer'
 
-app = Flask(__name__)
+# app = Flask(__name__)
+class CustomFlask(Flask):
+    jinja_options = Flask.jinja_options.copy()
+    jinja_options.update(dict(
+    block_start_string='(%',
+    block_end_string='%)',
+    variable_start_string='((',
+    variable_end_string='))',
+    comment_start_string='(#',
+    comment_end_string='#)',
+  ))
 
+app = CustomFlask(__name__)
+# change for vue front
 app.static_url_path = '/static'
 
 #logger making:
 
+@app.route('/api', methods=['POST'])
+def api():
+    """only for fd api"""
+    
+    try:
+        incoming = request.get_json()
+        key = incoming.get('key')
+        text = incoming.get('text')
+        if 0 < len(text) <= 200 and 0 < len(key)<=8:
+            chars = ts.filterchars(text)
+            keychar = ts.filterchars(key)
+            if len(chars) == 0 or len(keychar) == 0:
+                return jsonify({'error': 'invalid chars'})
+        else:
+            return jsonify({'error': 'too long chas'})
+        
+    except:
+        return jsonify({'error': 'no json data get'})
+    if incoming.get('mode') == 'enc':
+        ecr = puer.encrypt(key, text)
+        return jsonify({'encrypted': True,
+                              'res':ecr})
+    elif incoming.get('mode') == 'dec':
+        dcr = puer.decrypt(key, text)
+        return jsonify({'decrypted': True,
+                         'res': dcr
+                         })
+    else:
+        return jsonify({'error': 'mission mode'})
+    
+    return jsonify({'res': 'ok'})
 
 
 @app.route('/')
 def index():
     if 'uid' in session and 'access_token' in session:
         client = WeiboClient(session['access_token'])
-        result = client.get(suffix="statuses/public_timeline.json", params={"count":5})
+        # result = client.get(suffix="statuses/public_timeline.json", params={"count":5})
 
-        user = client.get(suffix="users/show.json", params={'uid': session['uid']})
+        # user = client.get(suffix="users/show.json", params={'uid': session['uid']})
 
-        if len(result.get('statuses'))>0 :
-            data = tv.statuses_to_data(result.get('statuses'))
-            #return 'Logged in as %s \n %s' % (escape(session['uid']), result)
-            return render_template('index-o.html', data=data, user=user)
-        else:
-            return render_template('index-o.html', user=user)
+        # if len(result.get('statuses'))>0 :
+        #     data = tv.statuses_to_data(result.get('statuses'))
+        #     #return 'Logged in as %s \n %s' % (escape(session['uid']), result)
+        #     return render_template('index.html')
+        # else:
+        user = {'token': session.get('access_token')}
+        return render_template('index.html', user = user)
     # return redirect(CAclient.authorize_url)
-    return render_template('index-o.html')
+    return render_template('index.html', user = False)
+
+
 
 @app.route('/keygen')
 def keygen():
@@ -89,7 +135,7 @@ def signpost():
         return render_template('signpost.html')
 
 
-@app.route('/postweibo', methods=['GET', 'POST'])
+@app.route('/postweibo', methods=['POST'])
 def postweibo():
     # send a test weibo. the posted text will truncated and add a tail
 
@@ -97,18 +143,23 @@ def postweibo():
     # status = request.args.get('t', time)
 
     if 'access_token' in session and request.method == 'POST':
-        text = request.form['text']
+        # text = request.form['text']
+        text = request.get_json().get('text')
         text = text[:200]
-        key = request.form['key']
+        # key = request.form['key']
+        key = request.get_json().get('key')
         _ = ts.update(text)
         _ = ts.update(key)
         ecr = puer.encrypt(key, text)
+        token = request.get_json().get('token')
+        if not token:
+            return jsonify({'error': 'token missing'})
 
         if len(ecr) > 122:
             ecr = ecr[:122]
-        tail = 'https://aishe.org.cn/decrypt #<%s' % key # must has this end
+        tail = 'https://aishe.org.cn/puer #<%s' % key # must has this end
         sentpost = '%s %s' % (ecr, tail)
-        client = WeiboClient(session['access_token'])
+        client = WeiboClient(token)
         result = client.post("statuses/share.json", data={"status":sentpost, "access_token":session['access_token']})
         # result = client.session.post('https://api.weibo.com/2/statuses/update.json', data={"status":"test article test article"})
         return jsonify(result)
@@ -172,6 +223,9 @@ def decrypt():
     #else:
     #    return redirect(url_for(login))
 
+@app.route('/login')
+def login():
+    return redirect(CAclient.authorize_url())
 
 @app.route('/logout')
 def logout():
@@ -206,7 +260,7 @@ def rate():
     #this parse and visulize the weibo object
     # login protect
     if not 'access_token' in session:
-        return redirect(CAclient.authorize_url)
+        return redirect(CAclient.authorize_url())
     # construct client, fetch home_timeline
     uid = session['uid']
     user = User(uid, session['access_token'])

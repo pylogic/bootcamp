@@ -73,7 +73,7 @@ def index():
         return ecr
 
     else:
-        return render_template('index.html')
+        return render_template('index.html', user = False)
         # return '''
         #     <p>Encrypt Weibo post</p>
         #     <form method="post">
@@ -83,6 +83,9 @@ def index():
         # </form>
         # '''
 
+@app.route('/login')
+def login():
+    return '1'
 
 @app.route('/encrypt', methods=['POST'])
 def encrypt():
