@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+<html xmlns:wb="http://open.weibo.com/wb">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>普洱</title>
+    <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js" type="text/javascript" charset="utf-8"></script>
     <script src="https://unpkg.com/vue"></script>
     <script src="https://unpkg.com/vue-material"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
@@ -41,13 +43,8 @@
             </div>
         </md-layout>
         <md-layout md-align="center" md-flex-xsmall="100" md-flex-small="50" md-flex-medium="33">
-           (% if not user %)
+
             <md-button class="md-raised md-primary" v-on:click="getAnswer">Go</md-button>
-            <md-button class="md-raised md-primary" href="/puer/login">Weibo login</md-button>
-            (% else %)
-            <md-button class="md-raised md-primary" v-on:click="getAnswer">Go</md-button>
-            
-           (% endif %)
         </md-layout>
         <md-layout md-align="center" md-flex-xsmall="100" md-flex-small="50" md-flex-medium="33">
 
@@ -77,16 +74,19 @@
                         <md-button href="/puer/login">登陆微博</md-button>
                     </md-card-actions>
                     (% endif %)
-
                     <md-card-actions>
                         <md-button v-on:click="closecard">关闭结果</md-button>
                     </md-card-actions>
                 </md-card>
             </div>
         </md-layout>
-
-    </div>
-    </md-layout>
+        <md-layout md-align="center" md-flex-xsmall="100" md-flex-small="50" md-flex-medium="33">
+            (% if not user %)
+            <md-button class="md-raised md-primary" href="/puer/login">Weibo login</md-button>
+            (% endif %)
+            <wb:share-button appkey="3789447389" addition="simple" type="button" ralateUid="6247056304"></wb:share-button>
+        </md-layout>
+        </md-layout>
 
     </div>
 
@@ -131,19 +131,19 @@
                 this.result = ''
             },
             postweibo: function() {
-              var vm = this
-              axios.post('/puer/postweibo', {
-                  text: this.result.res,
-                  key: this.key,
-                  token: this.token
-              })
-              .then(function(response){
-                  vm.result = ''
-                  vm.text = ''
-              })
-              .catch(function(error){
-                  vm.result.res = '粗线了错误'
-              })
+                var vm = this
+                axios.post('/puer/postweibo', {
+                        text: this.result.res,
+                        key: this.key,
+                        token: this.token
+                    })
+                    .then(function(response) {
+                        vm.result = ''
+                        vm.text = ''
+                    })
+                    .catch(function(error) {
+                        vm.result.res = '粗线了错误'
+                    })
             },
             getAnswer: _.debounce(
                 function() {
